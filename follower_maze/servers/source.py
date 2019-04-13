@@ -1,13 +1,26 @@
 import asyncio
 
+from follower_maze import events
 
-async def handle_source(reader, writer):
+
+async def read_event(reader: asyncio.StreamReader) -> str:
+    data = await reader.readline()
+    return data.decode()
+
+
+async def handle_source(reader: asyncio.StreamReader, writer: asyncio.StreamReader):
     while True:
-        data = await reader.readline()
-        message = data.decode()
-        addr = writer.get_extra_info('peername')
+        event = await read_event(reader)
 
-        print(f"Received {message!r} from {addr!r}")
+        # TODO: not sure about this, revisit later
+        if not event:
+            break
+
+        # TODO: rm prints, add real handling
+        print(events.handle(event))
+
+        # TODO: remove sleep later
+        await asyncio.sleep(1)
 
 
 async def get_source_server(host: str, port: int) -> asyncio.AbstractServer:
