@@ -7,3 +7,8 @@ def parse(event_data: str):
 
 def handle(event_data: str):
     return parse(event_data)
+
+
+# TODO: implement smth like sliding window
+def buffer_is_full() -> bool:
+    return False

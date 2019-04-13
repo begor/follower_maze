@@ -10,6 +10,10 @@ async def read_event(reader: asyncio.StreamReader) -> str:
 
 async def handle_source(reader: asyncio.StreamReader, writer: asyncio.StreamReader):
     while True:
+        if events.buffer_is_full():
+            await asyncio.sleep(1)
+            continue
+
         event = await read_event(reader)
 
         # TODO: not sure about this, revisit later
