@@ -19,7 +19,7 @@ class EventParser:
 
     def _tokenize(self) -> Tuple[int, str, tuple]:
         seq_no, event_type, *destinations = self._event_data.split(self._delimiter)
-        return int(seq_no), event_type[0], destinations
+        return int(seq_no), event_type[0], tuple(int(dest) for dest in destinations)
 
     def _get_type_parser(self, event_type: str):
         parsers = {

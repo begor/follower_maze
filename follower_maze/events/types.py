@@ -7,19 +7,22 @@ class Event:
     payload: bytes
 
     def __lt__(self, other):
+        """
+            Comparator to use Event in heap semantics.
+        """
         return self.seq_no < other.seq_no
 
 
 @dataclass
 class Follow(Event):
-    from_user: str
-    to_user: str
+    from_user: int
+    to_user: int
 
 
 @dataclass
 class Unfollow(Event):
-    from_user: str
-    to_user: str
+    from_user: int
+    to_user: int
 
 
 @dataclass
@@ -29,10 +32,10 @@ class Broadcast(Event):
 
 @dataclass
 class PrivateMessage(Event):
-    from_user: str
-    to_user: str
+    from_user: int
+    to_user: int
 
 
 @dataclass
 class StatusUpdate(Event):
-    from_user: str
+    from_user: int
