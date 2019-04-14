@@ -5,6 +5,12 @@ from tests.helpers import async_test
 
 
 class TestEventHandler(unittest.TestCase):
+    """
+        Test case for EventHandler.
+
+        Mostly test correct ordering of events.
+        Client notifies are tested in test_pipeline.
+    """
     @async_test
     async def tearDown(self):
         await events.handler.EventHandler.reset()
