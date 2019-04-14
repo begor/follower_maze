@@ -24,6 +24,17 @@ class EventHandler:
             heapq.heappush(cls._BUFFER, event)
 
     @classmethod
+    async def get_seq_no(cls):
+        async with cls._ALOCK:
+            return cls._LAST_PROCESSED_SEQ_NO
+
+    @classmethod
+    async def reset(cls):
+        async with cls._ALOCK:
+            cls._BUFFER = []
+            cls._LAST_PROCESSED_SEQ_NO = 0  # Last handled seq_no
+
+    @classmethod
     async def drain(cls):
         while True:
             async with cls._ALOCK:
