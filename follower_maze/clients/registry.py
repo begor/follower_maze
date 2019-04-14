@@ -7,6 +7,7 @@ from typing import Optional
 class ClientWriterRegistry:
     _REGISTRY = {}
     _ALOCK = asyncio.Lock()
+    _FOLLOWERS = {}
 
     @classmethod
     async def register(cls, client_id: str, writer: asyncio.StreamWriter):
@@ -36,3 +37,25 @@ class ClientWriterRegistry:
         async with cls._ALOCK:
             if client_id in cls._REGISTRY:
                 cls._REGISTRY.pop(client_id)
+
+
+    @classmethod
+    async def follow(cls, from_client: str, to_client: str, payload: bytes):
+        pass
+
+
+    @classmethod
+    async def unfollow(cls, from_client: str, to_client: str, payload: bytes):
+        pass
+
+    @classmethod
+    async def broadcast(cls, payload: bytes):
+        async with cls._ALOCK:
+            for client_id, writer in cls._REGISTRY:
+
+                if writer.is_closing():
+                    await cls.delete(client_id)
+                    continue
+
+                print(f"Broadcasting: {client_id}")
+                await writer.write(payload)

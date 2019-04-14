@@ -1,12 +1,14 @@
 from follower_maze.events import parser
+from follower_maze.events import handler
 
 
-def parse(event_data: str):
-    return parser.EventParser(event_data).parse()
+def parse(payload: bytes):
+    return parser.EventParser(payload).parse()
 
 
-def handle(event_data: str):
-    return parse(event_data)
+async def handle(payload: bytes):
+    event = parse(payload)
+    await handler.EventHandler.new(event)
 
 
 # TODO: implement smth like sliding window

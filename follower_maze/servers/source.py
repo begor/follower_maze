@@ -3,9 +3,8 @@ import asyncio
 from follower_maze import events
 
 
-async def read_event(reader: asyncio.StreamReader) -> str:
-    data = await reader.readline()
-    return data.decode()
+async def read_event_payload(reader: asyncio.StreamReader) -> bytes:
+    return await reader.readline()
 
 
 async def handle_source(reader: asyncio.StreamReader, writer: asyncio.StreamReader):
@@ -14,14 +13,14 @@ async def handle_source(reader: asyncio.StreamReader, writer: asyncio.StreamRead
             await asyncio.sleep(1)
             continue
 
-        event = await read_event(reader)
+        payload = await read_event_payload(reader)
 
         # TODO: not sure about this, revisit later
-        if not event:
+        if not payload:
             break
 
         # TODO: rm prints, add real handling
-        print(events.handle(event))
+        await events.handle(payload)
 
         # TODO: remove sleep later
         await asyncio.sleep(1)
