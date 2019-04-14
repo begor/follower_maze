@@ -22,9 +22,6 @@ async def handle_source(reader: asyncio.StreamReader, writer: asyncio.StreamRead
         # TODO: rm prints, add real handling
         await events.handle(payload)
 
-        # TODO: remove sleep later
-        await asyncio.sleep(1)
-
 
 async def get_source_server(host: str, port: int) -> asyncio.AbstractServer:
     return await asyncio.start_server(handle_source, host, port)

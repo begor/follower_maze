@@ -4,7 +4,7 @@ from typing import Optional
 
 # TODO: unit-test
 # TODO: doc
-class ClientWriterRegistry:
+class Clients:
     _REGISTRY = {}
     _ALOCK = asyncio.Lock()
     _FOLLOWERS = {}
@@ -19,7 +19,7 @@ class ClientWriterRegistry:
             cls._REGISTRY[client_id] = writer
 
     @classmethod
-    async def maybe_get(cls, client_id: str) -> Optional[asyncio.StreamWriter]:
+    async def maybe_get_client_writer(cls, client_id: str) -> Optional[asyncio.StreamWriter]:
         async with cls._ALOCK:
             maybe_writer = cls._REGISTRY.get(client_id)
 
@@ -38,24 +38,18 @@ class ClientWriterRegistry:
             if client_id in cls._REGISTRY:
                 cls._REGISTRY.pop(client_id)
 
+    @classmethod
+    async def notify(cls, client_id: str, payload: bytes):
+        maybe_client_writer = await cls.maybe_get_client_writer(client_id)
+
+        if maybe_client_writer is None:
+            return
+
+        client_writer = maybe_client_writer
+        client_writer.write(payload)
 
     @classmethod
-    async def follow(cls, from_client: str, to_client: str, payload: bytes):
-        pass
+    async def notify_all(cls, payload: bytes):
+        for client_id in cls._REGISTRY:
+            await cls.notify(client_id, payload)
 
-
-    @classmethod
-    async def unfollow(cls, from_client: str, to_client: str, payload: bytes):
-        pass
-
-    @classmethod
-    async def broadcast(cls, payload: bytes):
-        async with cls._ALOCK:
-            for client_id, writer in cls._REGISTRY:
-
-                if writer.is_closing():
-                    await cls.delete(client_id)
-                    continue
-
-                print(f"Broadcasting: {client_id}")
-                await writer.write(payload)
