@@ -1,32 +1,38 @@
 from dataclasses import dataclass
 
+
 @dataclass
-class Follow:
+class Event:
     seq_no: int
+    payload: bytes
+
+    def __lt__(self, other):
+        return self.seq_no < other.seq_no
+
+
+@dataclass
+class Follow(Event):
     from_user: str
     to_user: str
 
 
 @dataclass
-class Unfollow:
-    seq_no: int
+class Unfollow(Event):
     from_user: str
     to_user: str
 
 
 @dataclass
-class Broadcast:
-    seq_no: int
+class Broadcast(Event):
+    pass
 
 
 @dataclass
-class PrivateMessage:
-    seq_no: int
+class PrivateMessage(Event):
     from_user: str
     to_user: str
 
 
 @dataclass
-class StatusUpdate:
-    seq_no: int
+class StatusUpdate(Event):
     from_user: str

@@ -6,8 +6,9 @@ from follower_maze.events import types
 # TODO: unit-test
 # TODO: docs
 class EventParser:
-    def __init__(self, event_data: str, delimiter: str = "|"):
-        self._event_data = event_data
+    def __init__(self, payload: bytes, delimiter: str = "|"):
+        self._payload = payload
+        self._event_data = payload.decode()
         self._delimiter = delimiter
 
     def parse(self):
@@ -32,16 +33,16 @@ class EventParser:
         return parsers[event_type]
 
     def _parse_broadcast(self, seq_no: int, *_) -> types.Broadcast:
-        return types.Broadcast(seq_no=seq_no)
+        return types.Broadcast(seq_no=seq_no, payload=self._payload)
 
     def _parse_follow(self, seq_no: int, from_user: str, to_user: str) -> types.Follow:
-        return types.Follow(seq_no=seq_no, from_user=from_user, to_user=to_user)
+        return types.Follow(seq_no=seq_no, payload=self._payload, from_user=from_user, to_user=to_user)
 
     def _parse_private(self, seq_no: int, from_user: str, to_user: str) -> types.PrivateMessage:
-        return types.PrivateMessage(seq_no=seq_no, from_user=from_user, to_user=to_user)
+        return types.PrivateMessage(seq_no=seq_no, payload=self._payload, from_user=from_user, to_user=to_user)
 
     def _parse_status(self, seq_no: int, from_user: str, *_) -> types.StatusUpdate:
-        return types.StatusUpdate(seq_no=seq_no, from_user=from_user)
+        return types.StatusUpdate(seq_no=seq_no, payload=self._payload, from_user=from_user)
 
     def _parse_unfollow(self, seq_no: int, from_user: str, to_user: str) -> types.Unfollow:
-        return types.Unfollow(seq_no=seq_no, from_user=from_user, to_user=to_user)
+        return types.Unfollow(seq_no=seq_no, payload=self._payload, from_user=from_user, to_user=to_user)
