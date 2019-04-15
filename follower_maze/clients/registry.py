@@ -1,8 +1,7 @@
 import asyncio
+import logging
 from collections import defaultdict
 from typing import Optional
-
-import logging
 
 LOG = logging.getLogger(__name__)
 

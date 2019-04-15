@@ -1,7 +1,6 @@
 import unittest
 
 from follower_maze import clients
-from follower_maze import events
 from tests import factories
 from tests import mocks
 from tests.helpers import async_test
