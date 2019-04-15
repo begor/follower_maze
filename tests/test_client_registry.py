@@ -28,7 +28,7 @@ class TestClientRegistry(unittest.TestCase):
 
         await clients.handle_new_client(client_id=client_id, writer=client_writer)
 
-        self.assertEquals(await clients.maybe_get_client_writer(client_id=client_id), client_writer)
+        self.assertEqual(await clients.maybe_get_client_writer(client_id=client_id), client_writer)
 
     @async_test
     async def test_register_two(self):
@@ -38,8 +38,8 @@ class TestClientRegistry(unittest.TestCase):
         await clients.handle_new_client(client_id=client_id1, writer=client_writer1)
         await clients.handle_new_client(client_id=client_id2, writer=client_writer2)
 
-        self.assertEquals(await clients.maybe_get_client_writer(client_id=client_id1), client_writer1)
-        self.assertEquals(await clients.maybe_get_client_writer(client_id=client_id2), client_writer2)
+        self.assertEqual(await clients.maybe_get_client_writer(client_id=client_id1), client_writer1)
+        self.assertEqual(await clients.maybe_get_client_writer(client_id=client_id2), client_writer2)
 
     @async_test
     async def test_get_closed_writer(self):
@@ -47,7 +47,7 @@ class TestClientRegistry(unittest.TestCase):
 
         await clients.handle_new_client(client_id=client_id, writer=client_writer)
 
-        self.assertEquals(await clients.maybe_get_client_writer(client_id=client_id), client_writer)
+        self.assertEqual(await clients.maybe_get_client_writer(client_id=client_id), client_writer)
 
         client_writer.set_closing()
 
