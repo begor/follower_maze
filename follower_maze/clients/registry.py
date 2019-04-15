@@ -3,17 +3,35 @@ from collections import defaultdict
 from typing import Optional
 
 
-# TODO: unit-test
-# TODO: doc
 class Clients:
+    """
+        Registry-like facade for keeping track and notifying clients.
+
+        Uses two hash maps for storing clients:
+            - `_REGISTRY` maps `client_id` to `client_writer` (via witch client might be notified)
+            - `_FOLLOWERS` maps `client_id` to its followers
+
+        Every time we fetch client_id from `_REGISTRY`, we check whether its `client_writer` if alive (not closed).
+        If it's closed, we discard that client and every notify to it in future will be silently omitted.
+
+        NOTES:
+            - Assumes no duplicate client
+            - Assumes that number of concurrently connected clients can fit in memory
+    """
     _REGISTRY = {}
     _FOLLOWERS = defaultdict(set)
     _ALOCK = asyncio.Lock()
 
     @classmethod
-    async def register(cls, client_id: str, writer: asyncio.StreamWriter):
+    async def reset(cls):
         async with cls._ALOCK:
-            cls._REGISTRY[int(client_id)] = writer
+            cls._REGISTRY = {}
+            cls._FOLLOWERS = defaultdict(set)
+
+    @classmethod
+    async def register(cls, client_id: int, writer: asyncio.StreamWriter):
+        async with cls._ALOCK:
+            cls._REGISTRY[client_id] = writer
 
     @classmethod
     async def maybe_get_client_writer(cls, client_id: int) -> Optional[asyncio.StreamWriter]:
@@ -34,6 +52,7 @@ class Clients:
         async with cls._ALOCK:
             if client_id in cls._REGISTRY:
                 cls._REGISTRY.pop(client_id)
+            if client_id in cls._FOLLOWERS:
                 cls._FOLLOWERS.pop(client_id)
 
     @classmethod

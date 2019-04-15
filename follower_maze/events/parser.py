@@ -3,9 +3,12 @@ from typing import Tuple
 from follower_maze.events import types
 
 
-# TODO: unit-test
-# TODO: docs
 class EventParser:
+    """
+        Parses given bytes payload into one of `types.Event` subclasses.
+
+        NOTE: it assumes correct event type and will fail fast for unknown event.
+    """
     def __init__(self, payload: bytes, delimiter: str = "|"):
         self._payload = payload
         self._event_data = payload.decode()

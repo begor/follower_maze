@@ -4,8 +4,12 @@ from follower_maze import events
 
 
 async def handle_source(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    """
+        Handle for source connection.
+
+        Just read events from source line by line and handle them via `events.handle` action
+    """
     async for line in reader:
-        # TODO: rm prints, add real handling
         await events.handle(line)
 
 
