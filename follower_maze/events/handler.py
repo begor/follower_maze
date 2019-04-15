@@ -72,6 +72,7 @@ class EventHandler:
 
             await cls._process(event)
             await cls._finalize_event()
+            cls._maybe_log()
 
     @classmethod
     async def _process(cls, event: types.Event):
@@ -100,7 +101,6 @@ class EventHandler:
         async with cls._ALOCK:
             new_seq_no = heapq.heappop(cls._BUFFER).seq_no
             cls._LAST_PROCESSED_SEQ_NO = new_seq_no
-            cls._maybe_log()
 
     @classmethod
     def _maybe_log(cls):
