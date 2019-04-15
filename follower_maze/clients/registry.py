@@ -2,6 +2,10 @@ import asyncio
 from collections import defaultdict
 from typing import Optional
 
+import logging
+
+LOG = logging.getLogger(__name__)
+
 
 class Clients:
     """
@@ -30,6 +34,8 @@ class Clients:
 
     @classmethod
     async def register(cls, client_id: int, writer: asyncio.StreamWriter):
+        LOG.debug(f"{client_id} is online")
+
         async with cls._ALOCK:
             cls._REGISTRY[client_id] = writer
 
@@ -49,6 +55,8 @@ class Clients:
 
     @classmethod
     async def delete(cls, client_id: int):
+        LOG.debug(f"{client_id} is gone")
+
         async with cls._ALOCK:
             if client_id in cls._REGISTRY:
                 cls._REGISTRY.pop(client_id)
@@ -72,6 +80,8 @@ class Clients:
         if maybe_client_writer is None:
             return
 
+        LOG.debug(f"Notifying {client_id}")
+
         client_writer = maybe_client_writer
         client_writer.write(payload)
 
@@ -80,6 +90,8 @@ class Clients:
         async with cls._ALOCK:
             clients = list(cls._REGISTRY.keys())
 
+        LOG.debug(f"Notifying all {len(clients)}")
+
         for client_id in clients:
             await cls.notify(client_id, payload)
 
@@ -87,6 +99,8 @@ class Clients:
     async def notify_followers(cls, from_user_id: int, payload: bytes):
         async with cls._ALOCK:
             followers = list(cls._FOLLOWERS[from_user_id])
+
+        LOG.debug(f"Notifying {len(followers)} of {from_user_id}")
 
         if not followers:
             return

@@ -1,9 +1,13 @@
 import asyncio
 import heapq
+import logging
+import time
 from typing import Optional
 
 from follower_maze import clients
 from follower_maze.events import types
+
+LOG = logging.getLogger(__name__)
 
 
 class EventHandler:
@@ -22,10 +26,14 @@ class EventHandler:
     """
     _BUFFER = []  # Min heap of Events, acts as a buffer
     _LAST_PROCESSED_SEQ_NO = 0  # Last handled seq_no
+    _LAST_LOG_TIME = 0
+    _LOG_EVERY_TICKS = 1
     _ALOCK = asyncio.Lock()  # Locks critical sections w/ access to _BUFFER
 
     @classmethod
     async def new(cls, event: types.Event):
+        LOG.debug(f"New event {event.seq_no}")
+
         await cls.store(event)
         await cls.drain()
 
@@ -70,6 +78,8 @@ class EventHandler:
         """
             Dispatch event by type (too bad we don't have pattern matching in Python :)).
         """
+        LOG.debug(f"Processing {event.seq_no}")
+
         if isinstance(event, types.Broadcast):
             await clients.broadcast(payload=event.payload)
 
@@ -88,7 +98,15 @@ class EventHandler:
     @classmethod
     async def _finalize_event(cls):
         async with cls._ALOCK:
-            cls._LAST_PROCESSED_SEQ_NO = heapq.heappop(cls._BUFFER).seq_no
+            new_seq_no = heapq.heappop(cls._BUFFER).seq_no
+            cls._LAST_PROCESSED_SEQ_NO = new_seq_no
+            cls._maybe_log()
+
+    @classmethod
+    def _maybe_log(cls):
+        if time.monotonic() - cls._LAST_LOG_TIME > cls._LOG_EVERY_TICKS:
+            LOG.info(f"Processed {cls._LAST_PROCESSED_SEQ_NO}")
+            cls._LAST_LOG_TIME = time.monotonic()
 
     @classmethod
     def _get_processable_event(cls) -> Optional[types.Event]:
